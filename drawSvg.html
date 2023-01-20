@@ -8,16 +8,21 @@
     <Label>Brush type: <select id="brush.type" name="brush.type"></select></Label>
     <label>Brush size: <input id="brush.size" value="0.1"></label>
     <label>Brush color: <input id="brush.color" value="#3ba4ce" type="color"></label>
-    <button onclick='setBrush()'>Set</button>
     <br><br>
     <form id="form" method="POST">
         <label>SVG by path:</label><br>
         <textarea id="svgInput" rows="14" cols="80">
-            M 184.07185,199.88187 116.42344,170.56963 53.925795,209.67922 60.898884,136.28377 4.3906189,88.930507 76.34864,72.881869 103.92226,4.5063517 l 37.49941,63.4768423 73.5497,5.094871 -48.78211,55.279485 z
+M 184.07185,199.88187 116.42344,170.56963 53.925795,209.67922 60.898884,136.28377 4.3906189,88.930507 76.34864,72.881869 103.92226,4.5063517 l 37.49941,63.4768423 73.5497,5.094871 -48.78211,55.279485 z
         </textarea>
     </form>
     <br><br>
-    <button id="runButton" onclick="run()">Run</button>
+    <label>Iterations<input id="steps" value="10"></label><br>
+    <label>Scale: does nothing<input id="scale" value="2"></label><br>
+    <label>Draw Angle: does nothing<input id="angle" value="137.5"></label><br>
+    <label>Vertical Distance: does nothing<input id="distance" value="0.01"></label><br>
+    <br><br>
+    <button id="runButton" onclick="runSingle()">Run Single</button>
+    <button id="runSequence" onclick="runSequence()">Run Sequence</button>
     <button onclick="sendCommands(['new']); sendCommands(['brush.home']);">Clear Current Scene</button>
     <button onclick="sendCommands(['save.new']);">Save Current Scene</button>
     <button onclick="sendCommands(['export.current']);">Export Current Scene</button>
@@ -29,6 +34,7 @@
 <script>
     const brushes = ["OilPaint","Ink","ThickPaint","WetPaint","Marker","TaperedMarker","PinchedMarker","Highlighter","Flat","TaperedFlat","PinchedFlat","SoftHighlighter","Light","Fire","Embers","Smoke","Snow","Rainbow","Stars","VelvetInk","Waveform","Splatter","DuctTape","Paper","CoarseBristles","DrWigglez","Electricity","Streamers","Hypercolor","Bubbles","NeonPulse","CelVinyl","HyperGrid","LightWire","ChromaticWave","Dots","Petal","Icing","Toon","Wire","Spikes","Lofted","Disco","Comet","ShinyHull","MatteHull","UnlitHull","Diamond"];
 
+
     const menu = document.getElementById("brush.type");
     for (let brush of brushes) {
         const option = document.createElement("option");
@@ -36,12 +42,6 @@
         option.name = brush;
         if (brush==='Ink') option.selected=true;
         menu.add(option);
-    }
-
-    function setBrush() {
-        sendCommand('color.set.html=' + document.getElementById("brush.color").value.replace("#", ""));
-        sendCommand('brush.size.set=' + document.getElementById("brush.size").value);
-        sendCommand('brush.type=' + document.getElementById("brush.type").value);
     }
 
     function log(message) {
@@ -79,12 +79,45 @@
         xhr.send(commandData.join("&"));
     }
 
-    function run() {
+    function runSingle() {
         var svgInput = document.getElementById('svgInput').value
-
+        
         sendPostCommands([
             ['draw.svg', svgInput]
         ]);
+    }
+
+    function runSequence() {
+        var brush = document.getElementById('brush.type').value
+        var color = document.getElementById('brush.color').value.replace("#", "")
+        var brushSize = document.getElementById('brush.size').value
+        var svgInput = document.getElementById('svgInput').value
+        var steps = parseInt(document.getElementById('steps').value)
+        var scale = parseFloat(document.getElementById('scale').value)
+        var angle = parseFloat(document.getElementById('angle').value)
+        var distance = parseFloat(document.getElementById('distance').value)
+        var rot = 0;
+
+        sendCommands([
+            `brush.type=${brush}`,
+            `color.set.html=${color}`,
+            `brush.size.set=${brushSize}`
+        ]);
+
+        for (var i=0; i<steps; i++) {
+            rot += angle;
+            var radius = ((steps-i)/steps) * scale; //inward spiral
+            sendCommands([
+                // `brush.move=${distance}`,
+                `brush.turn.z=1`,
+                `brush.move.by=0.1,0.1,0`,
+                `brush.turn.z=${angle}`,
+                `color.add.hsv=0.01,0.01,0`
+            ]);
+            sendPostCommands([
+                ['draw.svg', svgInput]
+            ])
+        }
     }
 </script>
 </body>

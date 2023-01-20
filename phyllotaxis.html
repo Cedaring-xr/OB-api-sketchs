@@ -7,7 +7,7 @@
     <h4>Brush:</h4>
     <Label>Brush type: <select id="brush.type" name="brush.type"></select></Label>
     <label>Brush size: <input id="brush.size" value="0.1"></label>
-    <label>Brush color: <input id="brush.color" value="#e6e6e6" type="color"></label>
+    <label>Brush color: <input id="brush.color" value="#2be34a" type="color"></label>
     <button onclick='setBrush()'>Set</button>
     <!-- <Label>Brush type: <select id="brush.type" name="brush.type"></select></Label><br>
     <label>Brush size: <input id="brush.size" value=".05"></label><br>
@@ -15,8 +15,8 @@
     <!-- <label>Brush color: <input id="brush.color" value="LightBlue"></label><br> -->
     <br><br>
     <label>Sides: <input id="sides" value="3"></label><br>
-    <label>Steps: <input id="steps" value="20"></label><br>
-    <label>Scale: <input id="scale" value="0.2"></label><br>
+    <label>Steps: <input id="steps" value="60"></label><br>
+    <label>Scale: <input id="scale" value="2"></label><br>
     <label>Draw Angle: <input id="angle" value="137.5"></label><br>
     <label>Vertical Distance: <input id="distance" value="0.01"></label><br>
     <h4>rainbow</h4>
@@ -66,10 +66,10 @@
 
         sendCommands([
             'brush.home',
-            'brush.turn.x=90',
-            'color.set.html=' + document.getElementById("brush.color").value,
-            'brush.size.set=' + document.getElementById("brush.size").value,
-            'brush.type=' + document.getElementById("brush.type").value,
+            'brush.turn.x=90'
+            // 'color.set.html=' + document.getElementById("brush.color").value,
+            // 'brush.size.set=' + document.getElementById("brush.size").value,
+            // 'brush.type=' + document.getElementById("brush.type").value,
         ]);
 
         var sides = parseFloat(document.getElementById('sides').value)
@@ -92,7 +92,7 @@
                 `brush.move.x=${angle}`,
                 // `brush.draw=${distance}`,
                 // `brush.turn.z=${rot}`,
-                `color.add.hsv=${hue},${saturation},${value}`
+                `color.add.hsv=0,0.01,0`
                 // `color.add.hsv=${colorBlend}`
                 // `color.add.hsv=${hue},${saturation},${value}`
             ]);
